@@ -13,7 +13,13 @@ import { NoticeMessage } from 'tp-kit/components/notice-message';
 import {useEffect, useState} from 'react';
 import {bool} from "prop-types";
 import {useZodI18n, ZodI18nProvider} from "tp-kit/components/providers";
+import {createClient} from "@supabase/supabase-js";
 
+
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 export default function connexionPage() {
 
     useZodI18n(z);
@@ -39,6 +45,13 @@ export default function connexionPage() {
     }
 
 
+    const handleSubmit = async (values) => {
+
+        const { user, session, error } = await supabase.auth.signInWithPassword({
+            email: values.email,
+            password: values.password,
+        })
+    }
 
 
 
@@ -57,6 +70,7 @@ export default function connexionPage() {
                 <NoticeMessage key={i}{...notice}/>
             ))}
             <form onSubmit={form.onSubmit((values) => {
+                handleSubmit( values );
                 if (values.name === 'errorCondition') {
                     addError("Cette adresse n'est pas disponible");
                 } else {

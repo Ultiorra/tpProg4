@@ -11,7 +11,13 @@ import { SectionContainer } from 'tp-kit/components/section-container';
 import Link from 'next/link';
 import {useZodI18n} from "tp-kit/components/providers";
 import {useState} from "react";
+import {createClient} from "@supabase/supabase-js";
+import {NoticeMessage} from "tp-kit/components";
 
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 export default function inscriptionPage() {
     useZodI18n(z);
@@ -36,6 +42,22 @@ export default function inscriptionPage() {
         setNotices([...notices, {type: "success", message}]);
     }
 
+    const handleSubmit = async (values) => {
+        const signup = await supabase.auth.signUp({
+            email: values.email,
+            password: values.password,
+            options : {
+                data: { name: values.name },
+                emailRedirectTo: "http://localhost:3000/api/auth/callback",
+            }
+        })
+        console.log(signup)
+        if (signup.error) {
+            addError(signup.error.message);
+        } else {
+            addSuccess("Votre inscription a bien été prise en compte. Validez votre adresse mail pour vous connecter");
+        }
+    }
 
 
   return (
@@ -44,14 +66,10 @@ export default function inscriptionPage() {
       wrapperClassName="flex flex-col lg:flex-row gap-24"
     >
         <Card>
-
-            <form onSubmit={form.onSubmit((values) => {
-                if (values.name === 'errorCondition') {
-                    addError("Cette adresse n'est pas disponible");
-                } else {
-                    addSuccess("Votre inscription a bien été prise en compte. Validez votre adresse mail pour vous connecter");
-                }
-            } )}>
+            {notices.map((notice, i) => (
+                <NoticeMessage key={i}{...notice}/>
+            ))}
+            <form onSubmit={form.onSubmit(handleSubmit)}>
               <TextInput
                 name="name"
                 placeholder="Name"

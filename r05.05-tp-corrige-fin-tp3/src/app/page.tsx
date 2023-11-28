@@ -2,6 +2,8 @@ import { BreadCrumbs, SectionContainer } from "tp-kit/components";
 import { ProductList } from "../components/product-list";
 import { Metadata } from "next";
 import prisma from "../utils/prisma";
+import {createServerComponentSupabaseClient} from "@supabase/auth-helpers-nextjs/src/deprecated";
+import {cookies} from "next/headers";
 
 export const metadata:Metadata = {
   title: `Page d’accueil - Starbucks`,
