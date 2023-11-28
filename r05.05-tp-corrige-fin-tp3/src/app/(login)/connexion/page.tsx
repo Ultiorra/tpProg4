@@ -10,12 +10,14 @@ import { Button } from 'tp-kit/components/button';
 import { SectionContainer } from 'tp-kit/components/section-container';
 import Link from 'next/link';
 import { NoticeMessage } from 'tp-kit/components/notice-message';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
+import {bool} from "prop-types";
+import {useZodI18n, ZodI18nProvider} from "tp-kit/components/providers";
 
 export default function connexionPage() {
 
-  const [error , setError] = useState(false);
-  const [success , setSuccess] = useState(false);
+    useZodI18n(z);
+    const [notices, setNotices] = useState([]);
     const form =  useForm({
     validate: zodResolver(z.object({
       email: z.string().email(),
@@ -28,14 +30,16 @@ export default function connexionPage() {
         },
 });
 
- const onSubmit = (data : any) => {
-    if (true){
-      setSuccess(true);
+    function addError(message) {
+        setNotices([...notices, {type: "error", message}]);
     }
-    else{
-      setError(true);
+
+    function addSuccess(message) {
+        setNotices([...notices, {type: "success", message}]);
     }
-  }
+
+
+
 
 
 
@@ -45,26 +49,20 @@ export default function connexionPage() {
       wrapperClassName="flex flex-col lg:flex-row gap-24"
     >
 
+
         <Card>
-        
-        
-        {
-          error && <NoticeMessage
-    
-         onDismiss={setError(false)}
-          message="Email ou mot de passe incorrect"
-          type="error"
-        />
-        }
-        {
-          success && <NoticeMessage
-  
-         onDismiss={setSuccess(false)}
-          message="Connexion réussie"
-          type="success"
-        />
-}
-            <form onSubmit={form.onSubmit((data :any ) => onSubmit(data))}>
+
+
+            {notices.map((notice, i) => (
+                <NoticeMessage key={i}{...notice}/>
+            ))}
+            <form onSubmit={form.onSubmit((values) => {
+                if (values.name === 'errorCondition') {
+                    addError("Cette adresse n'est pas disponible");
+                } else {
+                    addSuccess("Votre inscription a bien été prise en compte. Validez votre adresse mail pour vous connecter");
+                }
+            } )}>
                 <TextInput
                 name="email"
                 placeholder="Email"
@@ -85,6 +83,7 @@ export default function connexionPage() {
                 <Link href="/inscription"> Créer un compte</Link>
         </form>
         </Card>
+
     </SectionContainer>
   );
 };

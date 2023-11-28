@@ -4,6 +4,7 @@ import { Lexend } from 'next/font/google'
 import { Providers } from '../../components/providers';
 import { Footer } from 'tp-kit/components/footer';
 import { Menu } from '../../components/menu';
+import {ZodI18nProvider} from "tp-kit/components/providers";
 
 const font = Lexend({
   subsets: ['latin'],
@@ -28,9 +29,9 @@ export default function Layout({
 }) {
   return (
 
-        <Providers font={font}>
-          
+        <ZodI18nProvider>
+
           {children}
-        </Providers>
+        </ZodI18nProvider>
   )
 }

@@ -9,9 +9,13 @@ import { Card } from 'tp-kit/components/card';
 import { Button } from 'tp-kit/components/button';
 import { SectionContainer } from 'tp-kit/components/section-container';
 import Link from 'next/link';
+import {useZodI18n} from "tp-kit/components/providers";
+import {useState} from "react";
 
 
 export default function inscriptionPage() {
+    useZodI18n(z);
+    const [notices, setNotices] = useState([]);
     const form =  useForm({
     validate: zodResolver(z.object({
       email: z.string().email(),
@@ -24,6 +28,13 @@ export default function inscriptionPage() {
         name: '',
         },
 });
+    function addError(message) {
+        setNotices([...notices, {type: "error", message}]);
+    }
+
+    function addSuccess(message) {
+        setNotices([...notices, {type: "success", message}]);
+    }
 
 
 
@@ -33,8 +44,14 @@ export default function inscriptionPage() {
       wrapperClassName="flex flex-col lg:flex-row gap-24"
     >
         <Card>
-        
-            <form onSubmit={form.onSubmit((data : any) => console.log(data))}>
+
+            <form onSubmit={form.onSubmit((values) => {
+                if (values.name === 'errorCondition') {
+                    addError("Cette adresse n'est pas disponible");
+                } else {
+                    addSuccess("Votre inscription a bien été prise en compte. Validez votre adresse mail pour vous connecter");
+                }
+            } )}>
               <TextInput
                 name="name"
                 placeholder="Name"

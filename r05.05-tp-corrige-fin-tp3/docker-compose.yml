@@ -8,3 +8,12 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: password
+
+  node:
+    image: node:alpine
+    volumes:
+      - ./:/app
+    entrypoint: node -i
+    stdin_open: true
+    tty: true
+    working_dir: /app
