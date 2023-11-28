@@ -14,12 +14,10 @@ import {useEffect, useState} from 'react';
 import {bool} from "prop-types";
 import {useZodI18n, ZodI18nProvider} from "tp-kit/components/providers";
 import {createClient} from "@supabase/supabase-js";
+import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
 
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+const supabase = createClientComponentClient();
 export default function connexionPage() {
 
     useZodI18n(z);

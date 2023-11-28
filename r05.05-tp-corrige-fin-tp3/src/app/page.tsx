@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import prisma from "../utils/prisma";
 import {createServerComponentSupabaseClient} from "@supabase/auth-helpers-nextjs/src/deprecated";
 import {cookies} from "next/headers";
+import AuthUrlHandler from "./auth-url-handler";
 
 export const metadata:Metadata = {
   title: `Page d’accueil - Starbucks`,
@@ -17,6 +18,7 @@ export default async function Home() {
     }
   });
 
+
   return (<SectionContainer>
     <BreadCrumbs items={[
       {
@@ -24,6 +26,8 @@ export default async function Home() {
         url: "/"
       }
     ]} />
+
+    <AuthUrlHandler />
 
     <ProductList categories={categories} showFilters />
   </SectionContainer>);

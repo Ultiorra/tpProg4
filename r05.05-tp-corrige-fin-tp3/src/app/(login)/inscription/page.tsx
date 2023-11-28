@@ -13,13 +13,12 @@ import {useZodI18n} from "tp-kit/components/providers";
 import {useState} from "react";
 import {createClient} from "@supabase/supabase-js";
 import {NoticeMessage} from "tp-kit/components";
+import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+
 
 export default function inscriptionPage() {
+    const supabase = createClientComponentClient();
     useZodI18n(z);
     const [notices, setNotices] = useState([]);
     const form =  useForm({
