@@ -8,18 +8,23 @@ import { Cart } from "./cart";
 import { CartCounter } from "./cart-counter";
 import Link from "next/link";
 
-type Props = {};
+type Props = {
+    user : any
+};
 
-const Menu: FC<Props> = memo(function () {
+const Menu: FC<Props> = memo(function ({user}) {
   return (
     <MenuBar
     trailing={
         <div className="flex flex-row items-center gap-4 justify-end">
-          <Link href="/mon-compte">
+          <Link href= {user.session ? "/mon-compte" : "/connexion"}>
             <Button variant="ghost" className="!rounded-full !p-0 h-[44px] w-[44px] flex justify-center items-center aspect-square relative text-3xl">
               <User size="18" weight="bold" />
             </Button>
           </Link>
+
+            {
+                user.session?
 
           <Popover as="div" className="flex justify-end">
             {({ open }) => (
@@ -50,6 +55,8 @@ const Menu: FC<Props> = memo(function () {
               </>
             )}
           </Popover>
+                    : null
+            }
         </div>
       }
     />

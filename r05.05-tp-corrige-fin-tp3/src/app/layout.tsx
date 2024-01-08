@@ -4,6 +4,9 @@ import { Lexend } from 'next/font/google'
 import { Providers } from '../components/providers';
 import { Footer } from 'tp-kit/components/footer';
 import { Menu } from '../components/menu';
+import {getUser} from "../utils/supabase";
+import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import {cookies} from "next/headers";
 
 const font = Lexend({
   subsets: ['latin'],
@@ -21,16 +24,19 @@ export const metadata: Metadata = {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const supabase  = createServerComponentClient({cookies})
+  const user = await getUser(supabase)
+
   return (
     <html lang="fr">
       <body className={font.className}>
         <Providers font={font}>
-          <Menu />
+          <Menu user={user} />
           
           {children}
         </Providers>
