@@ -14,10 +14,9 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const user = await getUser(supabase)
 
 
-    if (!user ) {
+    if (!user || !user.session ) {
         redirect('/connexion')
     }
-    console.log(user.session.user)
   return (
     <>
       {/* Orders list */}

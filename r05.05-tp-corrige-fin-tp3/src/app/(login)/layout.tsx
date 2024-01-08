@@ -35,9 +35,10 @@ export default async function Layout({
   const user = await getUser(supabase)
 
 
-  if (user ) {
+  if (user && user.session ) {
     redirect('/')
   }
+
 
   return (
 
