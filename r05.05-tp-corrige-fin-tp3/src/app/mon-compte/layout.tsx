@@ -7,14 +7,21 @@ import HandleIsConnected from "./HandleIsConnected";
 import { createServerComponentClient } from "../../../node_modules/@supabase/auth-helpers-nextjs/dist/index";
 import { cookies } from "../../../node_modules/next/headers";
 import { getUser } from "../../utils/supabase";
+import {redirect} from "next/navigation";
 export default async function Layout({ children }: { children: ReactNode }) {
   const orders = await prisma.order.findMany();
   const supabase  = createServerComponentClient({cookies})
   const user = await getUser(supabase)
+
+
+    if (!user ) {
+        redirect('/connexion')
+    }
+    console.log(user.session.user)
   return (
     <>
       {/* Orders list */}
-        <InfoUser user={user}/>
+        <InfoUser user={user.session.user}/>
         <HandleIsConnected/>
       <SectionContainer wrapperClassName="py-24 min-h-[80vh]">
         <div className="bg-white rounded-lg p-6 shadow-lg">

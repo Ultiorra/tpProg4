@@ -1,7 +1,7 @@
 "use client"
 
 
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import {  createForm, SubmitHandler, TextInput } from '@mantine/core';
 import { z } from 'zod';
 import { useForm, zodResolver } from '@mantine/form';
@@ -15,13 +15,17 @@ import {bool} from "prop-types";
 import {useZodI18n, ZodI18nProvider} from "tp-kit/components/providers";
 import {createClient} from "@supabase/supabase-js";
 import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
+import {getUser} from "../../../utils/supabase";
 
 
 const supabase = createClientComponentClient();
 export default function connexionPage() {
 
+
+
     useZodI18n(z);
-    const [notices, setNotices] = useState([]);
+    const [notices, setNotices] = useState([])
+    const router = useRouter();
     const form =  useForm({
     validate: zodResolver(z.object({
       email: z.string().email(),
@@ -48,7 +52,15 @@ export default function connexionPage() {
         const { user, session, error } = await supabase.auth.signInWithPassword({
             email: values.email,
             password: values.password,
+
         })
+        if (error) {
+            addError(error.message);
+            return;
+        }
+        addSuccess("Vous êtes connecté");
+
+        router.refresh();
     }
 
 
@@ -69,11 +81,6 @@ export default function connexionPage() {
             ))}
             <form onSubmit={form.onSubmit((values) => {
                 handleSubmit( values );
-                if (values.name === 'errorCondition') {
-                    addError("Cette adresse n'est pas disponible");
-                } else {
-                    addSuccess("Votre inscription a bien été prise en compte. Validez votre adresse mail pour vous connecter");
-                }
             } )}>
                 <TextInput
                 name="email"

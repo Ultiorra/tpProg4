@@ -5,6 +5,10 @@ import { Providers } from '../../components/providers';
 import { Footer } from 'tp-kit/components/footer';
 import { Menu } from '../../components/menu';
 import {ZodI18nProvider} from "tp-kit/components/providers";
+import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import {cookies} from "next/headers";
+import {getUser} from "../../utils/supabase";
+import {redirect} from "next/navigation";
 
 const font = Lexend({
   subsets: ['latin'],
@@ -22,11 +26,19 @@ export const metadata: Metadata = {
   }
 }
 
-export default function Layout({    
+export default async function Layout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const supabase  = createServerComponentClient({cookies})
+  const user = await getUser(supabase)
+
+
+  if (user ) {
+    redirect('/')
+  }
+
   return (
 
         <ZodI18nProvider>

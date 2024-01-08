@@ -19,16 +19,14 @@ export default function InfoUser ({user}) {
         router.refresh()
     }
 
-    if (!user.user_metadata || !user.user_metadata.name ) {
-        router.push('/connexion');
-    }
+
     return (
         <Card >
             <h2>Mon compte</h2>
-            <p> Bonjour {user.user_metadata.name}</p>
+            <p> Bonjour {user?.user_metadata.name}</p>
             <br/>
-            <p> Nom : {user.user_metadata.name}</p>
-            <p> Email : {user.email}</p>
+            <p> Nom : {user?.user_metadata.name}</p>
+            <p> Email : {user?.email}</p>
 
             <br/>
             <Button variant="outline" color="brand" onClick={handleSignOut}>
