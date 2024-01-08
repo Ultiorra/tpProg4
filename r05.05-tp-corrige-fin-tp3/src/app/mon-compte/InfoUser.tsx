@@ -1,17 +1,27 @@
-
+"use client"
 import {Button, Card} from "tp-kit/components";
-import {createClientComponentClient, createServerComponentClient} from "@supabase/auth-helpers-nextjs";
-import {cookies} from "next/headers";
-import {getUser} from "../../utils/supabase";
+import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
+import {useRouter} from "next/navigation";
+import { useEffect } from 'react';
 //j'utilise pas getUser psq ca marche pas mais je fais la mm chose donc jsp
-export default  async function InfoUser () {
-    const supabase = createServerComponentClient({cookies})
-    const { data, error } = await supabase.auth.getSession()
-    console.log(data);
-     const user = data.session.user;
+type props = {
+    user : any
+}
+
+export default function InfoUser ({user}) {
+
+    const supabase = createClientComponentClient()
+    const router = useRouter()
 
 
+    const handleSignOut = async() => {
+        await supabase.auth.signOut()
+        router.refresh()
+    }
 
+    if (!user.user_metadata || !user.user_metadata.name ) {
+        router.push('/connexion');
+    }
     return (
         <Card >
             <h2>Mon compte</h2>
@@ -21,7 +31,7 @@ export default  async function InfoUser () {
             <p> Email : {user.email}</p>
 
             <br/>
-            <Button variant="outline" color="brand">
+            <Button variant="outline" color="brand" onClick={handleSignOut}>
                 Se déconnecter
             </Button>
         </Card>
