@@ -1,42 +1,45 @@
-import { ReactNode } from "react";
-import { SectionContainer } from "tp-kit/components";
+import {ReactNode} from "react";
+import {Card, SectionContainer} from "tp-kit/components";
 import prisma from "../../utils/prisma";
-import { OrderTable } from "../../components/order-table";
-import InfoUser from "./InfoUser";
-import HandleIsConnected from "./HandleIsConnected";
-import { createServerComponentClient } from "../../../node_modules/@supabase/auth-helpers-nextjs/dist/index";
-import { cookies } from "../../../node_modules/next/headers";
-import { getUser } from "../../utils/supabase";
-import {redirect} from "next/navigation";
-export default async function Layout({ children }: { children: ReactNode }) {
+import {OrderTable} from "../../components/order-table";
+import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import { cookies } from 'next/headers';
 
-  const supabase  = createServerComponentClient({cookies})
-  const user = await getUser(supabase)
-    if (!user || !user.session ) {
-        redirect('/connexion')
-    }
+export default async function Layout({children}: { children: ReactNode }) {
+    const supabase = createServerComponentClient({ cookies });
+    const {data} = await supabase.auth.getUser();
+
     const orders = await prisma.order.findMany({
         where: {
-            userId: user.session.user.id
+            userId: data.user?.id
         }
     });
 
+    return (
+        <div
+            className="flex"
+        >
+            <div
+                className="basis-2/6 bg-coffee-50 py-8 lg:px-8"
+            >
+                <div
+                    className="py-24 min-h-[80vh]"
+                >
+                    <Card
+                        className="w-full py-4"
+                    >
+                        {children}
+                    </Card>
+                </div>
+            </div>
+            {/* Orders list */}
+            <SectionContainer wrapperClassName="py-24 min-h-[80vh]" className="basis-4/6">
+                <div className="bg-white rounded-lg p-6 shadow-lg">
+                    <OrderTable orders={orders}/>
+                </div>
+            </SectionContainer>
 
-  return (
-    <>
-      {/* Orders list */}
-        <InfoUser user={user.session.user}/>
-        <HandleIsConnected/>
-      <SectionContainer wrapperClassName="py-24 min-h-[80vh]">
-        <div className="bg-white rounded-lg p-6 shadow-lg">
-
-            <OrderTable orders={orders} />
-
+            {/* Children */}
         </div>
-      </SectionContainer>
-
-      {/* Children */}
-      {children}
-    </>
-  );
+    );
 }

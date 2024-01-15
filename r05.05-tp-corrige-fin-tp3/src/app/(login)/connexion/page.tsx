@@ -1,110 +1,107 @@
-"use client"
+'use client';
 
-
-import { useRouter } from 'next/navigation';
-import {  createForm, SubmitHandler, TextInput } from '@mantine/core';
 import { z } from 'zod';
-import { useForm, zodResolver } from '@mantine/form';
-import { Card } from 'tp-kit/components/card';
-import { Button } from 'tp-kit/components/button';
-import { SectionContainer } from 'tp-kit/components/section-container';
-import Link from 'next/link';
-import { NoticeMessage } from 'tp-kit/components/notice-message';
-import {useEffect, useState} from 'react';
-import {bool} from "prop-types";
-import {useZodI18n, ZodI18nProvider} from "tp-kit/components/providers";
-import {createClient} from "@supabase/supabase-js";
+import {useForm, zodResolver} from "@mantine/form";
+import {PasswordInput, TextInput} from "@mantine/core";
+import React, {useEffect, useState} from "react";
+import {Button, NoticeMessage, useZodI18n} from "tp-kit/components";
+import {useRouter} from "next/navigation";
 import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
 import {getUser} from "../../../utils/supabase";
 
-
-const supabase = createClientComponentClient();
-export default function connexionPage() {
-
-
-
-    useZodI18n(z);
-    const [notices, setNotices] = useState([])
-    const router = useRouter();
-    const form =  useForm({
-    validate: zodResolver(z.object({
-      email: z.string().email(),
-      
-      password: z.string().min(6),
-    })),
-    initialValues: {
-        email: '',
-        password: '',
-        },
+const schema = z.object({
+    email: z.string().email().nonempty(),
+    password: z.string().min(6)
 });
 
-    function addError(message) {
-        setNotices([...notices, {type: "error", message}]);
-    }
+type FormValues = z.infer<typeof schema>;
 
-    function addSuccess(message) {
-        setNotices([...notices, {type: "success", message}]);
-    }
+export default function Connexion(){
+    useZodI18n(z);
+    const form = useForm<FormValues>({
+        initialValues: {
+            email: '',
+            password: '',
+        },
 
+        validate: zodResolver(schema),
+    });
 
-    const handleSubmit = async (values) => {
+    const supabase = createClientComponentClient();
 
-        const { user, session, error } = await supabase.auth.signInWithPassword({
-            email: values.email,
-            password: values.password,
+    const [created, setCreated] = useState(false);
+    const [isValid, setIsValid] = useState(false);
+    const [message, setMessage] = useState("");
 
-        })
-        if (error) {
-            addError(error.message);
-            return;
+    const router = useRouter();
+
+    useEffect(() => {
+        getUser(supabase).then((user) => {
+            if (user.session) {
+                router.push('/mon-compte')
+            }
+        });
+    }, []);
+
+    const handleSubmit = async (values: FormValues) => {
+        const { error } = await supabase.auth.signInWithPassword(
+            {
+                email: values.email,
+                password: values.password,
+            }
+        )
+
+        if (!error) {
+            router.push('/')
         }
-        addSuccess("Vous êtes connecté");
 
-        router.refresh();
+        console.log(error)
+        setCreated(true);
+        setMessage((error) ? error.message : "Vous êtes connecté")
+        setIsValid((!error))
     }
 
+    return (
+        <form
+            className="flex items-center flex-col space-y-6 w-"
+            onSubmit={form.onSubmit((values) => handleSubmit(values))}
+        >
+            <p
+                className="text-left w-full text-2xl"
+            >
+                Connexion
+            </p>
 
+            {
+                created &&
+                <NoticeMessage
+                    type={isValid ? "success" : "error"}
+                    message={message}
+                />
+            }
 
-
-  return (
-    <SectionContainer
-      className="py-36"
-      wrapperClassName="flex flex-col lg:flex-row gap-24"
-    >
-
-
-        <Card>
-
-
-            {notices.map((notice, i) => (
-                <NoticeMessage key={i}{...notice}/>
-            ))}
-            <form onSubmit={form.onSubmit((values) => {
-                handleSubmit( values );
-            } )}>
-                <TextInput
-                name="email"
-                placeholder="Email"
-                label="Email"
+            <TextInput
+                className="w-full"
                 required
+                label="Adresse email"
                 {...form.getInputProps('email')}
-                />
-                <TextInput
-                name="password"
-                placeholder="Password"
-                label="Password"
-                type="password"
+            />
+
+            <PasswordInput
+                className="w-full"
                 required
+                label="Mot de passe"
                 {...form.getInputProps('password')}
-                />
-                <Button type="submit"> Connexion </Button>  
-                <br/>
-                <Link href="/inscription"> Créer un compte</Link>
+            />
+
+            <Button
+                className="w-full cursor-pointer"
+                type="submit"
+            >
+                Se connecter
+            </Button>
+
+            <a onClick={() => router.push('/inscription')} className="">Créer un compte</a>
         </form>
-        </Card>
-
-    </SectionContainer>
-  );
-};
-
-
+    );
+}

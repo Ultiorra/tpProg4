@@ -27,6 +27,7 @@ export type CartData = {
   lines: ProductLineData[],
   count: number,
 }
+
 declare module "@supabase/supabase-js" {
   export interface UserMetadata {
     name?: string
