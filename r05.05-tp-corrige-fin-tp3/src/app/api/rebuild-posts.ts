@@ -1,0 +1,1 @@
+const supabase_webhook_key = process.env.SUPABASE_WEBHOOK_KEY;
